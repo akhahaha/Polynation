@@ -193,29 +193,90 @@ Animation.prototype.display = function (time) {
     /**********************************
      Start coding here!!!!
      **********************************/
+};
+
+/**
+ * Draws sample objects.
+ * @param model_transform Current matrix
+ * @returns Transformed matrix
+ */
+Animation.prototype.sample = function (model_transform) {
+    var purplePlastic = new Material(vec4(.9, .5, .9, 1), 1, 1, 1, 40);
+
     model_transform = mult(model_transform, translate(0, 10, -15));		    // Position the next shape by post-multiplying another matrix onto the current matrix product
     this.m_cube.draw(this.graphicsState, model_transform, purplePlastic);	// Draw a cube, passing in the current matrices
     CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);					// How to draw a set of axes, conditionally displayed - cycle through by pressing p and m
 
     model_transform = mult(model_transform, translate(0, -2, 0));
-    this.m_fan.draw(this.graphicsState, model_transform, greyPlastic);			// Cone
+    this.m_fan.draw(this.graphicsState, model_transform, purplePlastic);	// Cone
     CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
     model_transform = mult(model_transform, translate(0, -4, 0));
-    this.m_cylinder.draw(this.graphicsState, model_transform, greyPlastic);		// Tube
+    this.m_cylinder.draw(this.graphicsState, model_transform, purplePlastic);	// Tube
     CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
 
 
-    model_transform = mult(model_transform, translate(0, -3, 0));											// Example Translate
-    model_transform = mult(model_transform, rotate(this.graphicsState.animation_time / 20, 0, 1, 0));		// Example Rotate
-    model_transform = mult(model_transform, scale(5, 1, 5));												// Example Scale
-    this.m_sphere.draw(this.graphicsState, model_transform, earth);				// Sphere
+    model_transform = mult(model_transform, translate(0, -3, 0));										// Example Translate
+    model_transform = mult(model_transform, rotate(this.graphicsState.animation_time / 20, 0, 1, 0));	// Example Rotate
+    model_transform = mult(model_transform, scale(5, 1, 5));											// Example Scale
+    this.m_sphere.draw(this.graphicsState, model_transform, purplePlastic);			// Sphere
 
     model_transform = mult(model_transform, translate(0, -2, 0));
-    this.m_strip.draw(this.graphicsState, model_transform, stars);				// Rectangle
+    this.m_strip.draw(this.graphicsState, model_transform, purplePlastic);			// Rectangle
     CURRENT_BASIS_IS_WORTH_SHOWING(this, model_transform);
+
+    return model_transform;
 };
 
+/**
+ * Draws a snowman
+ * @param model_transform Current matrix
+ * @returns Transformed matrix
+ */
+Animation.prototype.snowman = function (model_transform) {
+    var greyPlastic = new Material(vec4(.5, .5, .5, 1), 1, 1, .5, 20);
+
+    // Nose
+    model_transform = mult(model_transform, rotate(this.graphicsState.animation_time / 20, 0, 1, 0));
+    this.m_sphere.draw(this.graphicsState, model_transform, greyPlastic);
+
+    // Upper sphere
+    model_transform = mult(model_transform, translate(0, 0, 2));
+    model_transform = mult(model_transform, scale(.3, .3, 1));
+    this.m_fan.draw(this.graphicsState, model_transform, greyPlastic);
+    model_transform = mult(model_transform, scale(1 / .3, 1 / .3, 1 / 1));
+    model_transform = mult(model_transform, translate(0, 0, -2));
+
+    // Center sphere
+    model_transform = mult(model_transform, translate(0, -3, 0));
+    model_transform = mult(model_transform, scale(2, 2, 2));
+    this.m_sphere.draw(this.graphicsState, model_transform, greyPlastic);
+
+    // Right arm
+    model_transform = mult(model_transform, rotate(90, 0, 1, 0));
+    model_transform = mult(model_transform, translate(0, 0, 2));
+    model_transform = mult(model_transform, scale(.1, .1, 2))
+    this.m_cylinder.draw(this.graphicsState, model_transform, greyPlastic);
+    model_transform = mult(model_transform, scale(1 / .1, 1 / .1, 1 / 2))
+    model_transform = mult(model_transform, translate(0, 0, -2));
+    model_transform = mult(model_transform, rotate(-90, 0, 1, 0));
+
+    // Left arm
+    model_transform = mult(model_transform, rotate(-90, 0, 1, 0));
+    model_transform = mult(model_transform, translate(0, 0, 2));
+    model_transform = mult(model_transform, scale(.1, .1, 2))
+    this.m_cylinder.draw(this.graphicsState, model_transform, greyPlastic);
+    model_transform = mult(model_transform, scale(1 / .1, 1 / .1, 1 / 2))
+    model_transform = mult(model_transform, translate(0, 0, -2));
+    model_transform = mult(model_transform, rotate(90, 0, 1, 0));
+
+    // Base sphere
+    model_transform = mult(model_transform, translate(0, -3, 0));
+    model_transform = mult(model_transform, scale(2, 2, 2))
+    this.m_sphere.draw(this.graphicsState, model_transform, greyPlastic);
+
+    return model_transform;
+};
 
 Animation.prototype.update_strings = function (debug_screen_object)		// Strings this particular class contributes to the UI
 {
