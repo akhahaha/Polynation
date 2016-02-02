@@ -194,6 +194,7 @@ Animation.prototype.display = function (time) {
      Start coding here!!!!
      **********************************/
     var ground_transform = this.ground(mult(model_transform, translate(0, -5, 0))); // Draw the ground below centerline
+    var tree = this.tree(mult(ground_transform, translate(2, 0, 2))); // Draw tree off-center from ground
 
 };
 
@@ -249,6 +250,47 @@ Animation.prototype.ground = function (model_transform) {
     return origin;
 };
 
+/**
+ * Draws a multi-part tree that sways left and right.
+ * @param model_transform Current matrix
+ * @returns {*} Matrix centered at tree base
+ */
+Animation.prototype.tree = function (model_transform) {
+    var NUM_SECTIONS = 7;
+    var FOLIAGE_TEXTURE = new Material(getColorVec(30, 120, 30, 250), 1, 0.5, 0.5, 100);
+    var origin = model_transform;
+
+    // Draw trunk sections
+    for (var trunkSection = 0; trunkSection < NUM_SECTIONS; trunkSection++) {
+        model_transform = this.treeTrunkSection(model_transform);
+    }
+
+    // Draw foliage
+    model_transform = mult(model_transform, scale(2, 2, 2));
+    this.m_sphere.draw(this.graphicsState, model_transform, FOLIAGE_TEXTURE);
+
+    return origin;
+};
+
+/**
+ * Draws a tree trunk section that sways left and right around its origin.
+ * @param model_transform Current matrix
+ * @returns {*} Matrix centered at top of trunk section.
+ */
+Animation.prototype.treeTrunkSection = function (model_transform) {
+    var TRUNK_HEIGHT = 1;
+    var TRUNK_WIDTH = 0.2;
+    var SWAY_PERIOD = 4000; // milliseconds
+    var MAX_SWAY = 2; // degrees
+    var TRUNK_TEXTURE = new Material(getColorVec(55, 45, 20, 255), 1, 1, 1, 40);
+
+    model_transform = this.periodicPivot(model_transform, SWAY_PERIOD, MAX_SWAY);
+    var origin = model_transform = mult(model_transform, translate(0, TRUNK_HEIGHT, 0));
+    model_transform = mult(model_transform, translate(0, -TRUNK_HEIGHT / 2, 0)); // Move trunk center halfway up
+    model_transform = mult(model_transform, scale(TRUNK_WIDTH, TRUNK_HEIGHT, TRUNK_WIDTH));
+    this.m_cube.draw(this.graphicsState, model_transform, TRUNK_TEXTURE);
+
+    return origin;
 };
 
 /**
