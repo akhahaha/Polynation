@@ -193,6 +193,8 @@ Animation.prototype.display = function (time) {
     /**********************************
      Start coding here!!!!
      **********************************/
+    var ground_transform = this.ground(mult(model_transform, translate(0, -5, 0))); // Draw the ground below centerline
+
 };
 
 /**
@@ -205,6 +207,24 @@ Animation.prototype.display = function (time) {
  */
 var getColorVec = function (red, green, blue, alpha) {
     return vec4(red / 255.0, green / 255.0, blue / 255.0, alpha / 255.0);
+};
+
+/**
+ * Draws a stretched out and flattened cube to represent the ground plane.
+ * @param model_transform Current matrix
+ * @returns {*} Origin matrix
+ */
+Animation.prototype.ground = function (model_transform) {
+    var GROUND_TEXTURE = new Material(getColorVec(60, 215, 30, 255), 1, 1, 1, 40);
+    var GROUND_WIDTH = 100;
+    var origin = model_transform;
+
+    model_transform = mult(model_transform, scale(GROUND_WIDTH, 0.1, GROUND_WIDTH));
+    this.m_cube.draw(this.graphicsState, model_transform, GROUND_TEXTURE);
+
+    return origin;
+};
+
 };
 
 /**
