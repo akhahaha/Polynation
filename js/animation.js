@@ -196,6 +196,18 @@ Animation.prototype.display = function (time) {
 };
 
 /**
+ * Generates a vec4 object from RGB values.
+ * @param red RGB red value
+ * @param green RGB green value
+ * @param blue RGB blue value
+ * @param alpha RGB alpha value
+ * @returns {*} Get vec4 RGB object
+ */
+var getColorVec = function (red, green, blue, alpha) {
+    return vec4(red / 255.0, green / 255.0, blue / 255.0, alpha / 255.0);
+};
+
+/**
  * Draws sample objects.
  * @param model_transform Current matrix
  * @returns Transformed matrix
