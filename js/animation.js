@@ -210,6 +210,30 @@ var getColorVec = function (red, green, blue, alpha) {
 };
 
 /**
+ * Pivots a matrix periodically.
+ * @param model_transform Current matrix
+ * @param period Period in milliseconds to pivot
+ * @param maxPivot Max angle in degrees to pivot
+ * @returns {*} Pivoting matrix
+ */
+Animation.prototype.periodicPivot = function (model_transform, period, maxPivot) {
+    var swaySpeed = period / 4 / maxPivot;
+
+    var time = this.graphicsState.animation_time % period;
+    if (time >= 0 && time < period / 4) {
+        model_transform = mult(model_transform, rotate((time - 0) / swaySpeed, 0, 0, 0.5));
+    } else if (time >= period / 4 && time < period / 2) {
+        model_transform = mult(model_transform, rotate((time - period / 4) / -swaySpeed + maxPivot, 0, 0, 0.5));
+    } else if (time >= period / 2 && time < period * 3 / 4) {
+        model_transform = mult(model_transform, rotate((time - period / 2) / -swaySpeed, 0, 0, 0.5));
+    } else {
+        model_transform = mult(model_transform, rotate((time - period * 3 / 4) / swaySpeed - maxPivot, 0, 0, 0.5));
+    }
+
+    return model_transform;
+};
+
+/**
  * Draws a stretched out and flattened cube to represent the ground plane.
  * @param model_transform Current matrix
  * @returns {*} Origin matrix
