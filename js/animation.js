@@ -185,14 +185,6 @@ Animation.prototype.display = function (time) {
 
     var model_transform = mat4();
 
-    var purplePlastic = new Material(vec4(.9, .5, .9, 1), 1, 1, 1, 40), // Omit the string parameter if you want no texture
-        greyPlastic = new Material(vec4(.5, .5, .5, 1), 1, 1, .5, 20),
-        earth = new Material(vec4(.5, .5, .5, 1), 1, 1, 1, 40, "earth.gif"),
-        stars = new Material(vec4(.5, .5, .5, 1), 1, 1, 1, 40, "stars.png");
-
-    /**********************************
-     Start coding here!!!!
-     **********************************/
     var ground_transform = this.ground(mult(model_transform, translate(0, -5, 0))); // Draw the ground below centerline
     var tree = this.tree(mult(ground_transform, translate(2, 0, 2))); // Draw tree off-center from ground
     var bee = this.bee(mult(tree, translate(0, 3, 0))); // Orbit bee around tree
