@@ -195,6 +195,7 @@ Animation.prototype.display = function (time) {
      **********************************/
     var ground_transform = this.ground(mult(model_transform, translate(0, -5, 0))); // Draw the ground below centerline
     var tree = this.tree(mult(ground_transform, translate(2, 0, 2))); // Draw tree off-center from ground
+    var bee = this.bee(mult(tree, translate(0, 3, 0))); // Orbit bee around tree
 
 };
 
@@ -289,6 +290,123 @@ Animation.prototype.treeTrunkSection = function (model_transform) {
     model_transform = mult(model_transform, translate(0, -TRUNK_HEIGHT / 2, 0)); // Move trunk center halfway up
     model_transform = mult(model_transform, scale(TRUNK_WIDTH, TRUNK_HEIGHT, TRUNK_WIDTH));
     this.m_cube.draw(this.graphicsState, model_transform, TRUNK_TEXTURE);
+
+    return origin;
+};
+
+/**
+ * Draws an orbiting bee.
+ * @param model_transform Current matrix
+ * @returns {*} Matrix at orbit center
+ */
+Animation.prototype.bee = function (model_transform) {
+    var BEE_SCALE = 0.5;
+    var MAX_HEIGHT_CHANGE = 1;
+    var VERTICAL_PERIOD = 4000; // milliseconds
+    var RADIUS = 7;
+    var BEE_BODY_TEXTURE = new Material(getColorVec(10, 10, 10, 255), 1, 1, 1, 255);
+    var BEE_ABDOMEN_TEXTURE = new Material(getColorVec(230, 200, 0, 255), 1, 1, 1, 255);
+
+    var origin = model_transform;
+    // Orbit bee clockwise at radius
+    model_transform = mult(model_transform, rotate(this.graphicsState.animation_time / -20, 0, 1, 0));
+    var bee = mult(model_transform, translate(RADIUS, 0, 0));
+
+    // Move bee up and down
+    var y = Math.sin(this.graphicsState.animation_time / VERTICAL_PERIOD * 4);
+    bee = mult(bee, translate(0, y * MAX_HEIGHT_CHANGE, 0));
+
+    // Scale bee
+    bee = mult(bee, scale(BEE_SCALE, BEE_SCALE, BEE_SCALE));
+
+    // Draw bee
+    var beeThorax = mult(bee, scale(1.5, 1.5, 3));
+    this.m_cube.draw(this.graphicsState, beeThorax, BEE_BODY_TEXTURE);
+
+    var beeHead = mult(bee, translate(0, 0, 2.5));
+    beeHead = mult(beeHead, scale(1, 1, 1));
+    this.m_sphere.draw(this.graphicsState, beeHead, BEE_BODY_TEXTURE);
+
+    var beeAbdomen = mult(bee, translate(0, 0, -2.25));
+    beeAbdomen = mult(beeAbdomen, scale(1, 1, 1.5));
+    this.m_sphere.draw(this.graphicsState, beeAbdomen, BEE_ABDOMEN_TEXTURE);
+
+    var beeLegLeftForward = mult(bee, translate(0.75, -0.5, 0.75));
+    this.beeLeg(beeLegLeftForward);
+    var beeLegLeftCenter = mult(bee, translate(0.75, -0.5, 0));
+    this.beeLeg(beeLegLeftCenter);
+    var beeLegLeftRear = mult(bee, translate(0.75, -0.5, -0.75));
+    this.beeLeg(beeLegLeftRear);
+    var beeWingLeft = mult(bee, translate(0.75, 0.75, 0));
+    this.beeWing(beeWingLeft);
+
+    // Flip orientation to generate the right side
+    var beeRight = mult(bee, rotate(180, 0, 1, 0));
+    var beeLegRightForward = mult(beeRight, translate(0.75, -0.5, 0.75));
+    this.beeLeg(beeLegRightForward);
+    var beeLegRightCenter = mult(beeRight, translate(0.75, -0.5, 0));
+    this.beeLeg(beeLegRightCenter);
+    var beeLegRightRear = mult(beeRight, translate(0.75, -0.5, -0.75));
+    this.beeLeg(beeLegRightRear);
+    var beeWingRight = mult(beeRight, translate(0.75, 0.75, 0));
+    this.beeWing(beeWingRight);
+
+    return origin;
+};
+
+/**
+ * Draws a bee leg that moves around its origin.
+ * @param model_transform Current matrix
+ * @returns {*} Matrix at leg root
+ */
+Animation.prototype.beeLeg = function (model_transform) {
+    var LEG_LENGTH = 1.5;
+    var LEG_WIDTH = 0.2;
+    var INITIAL_ANGLE = -60;
+    var SWAY_PERIOD = 2000; // milliseconds
+    var MAX_SWAY = 30; // degrees
+    var BEE_BODY = new Material(getColorVec(10, 10, 10, 255), 1, 1, 1, 255);
+
+    // Draw "thigh"
+    model_transform = mult(model_transform, rotate(INITIAL_ANGLE, 0, 0, 1));
+    model_transform = this.periodicPivot(model_transform, SWAY_PERIOD, MAX_SWAY);
+    var origin = model_transform;
+    model_transform = mult(model_transform, translate(LEG_LENGTH / 2, 0, 0));
+    model_transform = mult(model_transform, scale(LEG_LENGTH, LEG_WIDTH, LEG_WIDTH));
+    this.m_cube.draw(this.graphicsState, model_transform, BEE_BODY);
+
+    // Draw "femur"
+    var legEnd = mult(origin, translate(LEG_LENGTH, 0, 0));
+    model_transform = mult(legEnd, rotate(INITIAL_ANGLE * 1.1, 0, 0, 1));
+    model_transform = this.periodicPivot(model_transform, SWAY_PERIOD, MAX_SWAY);
+    var origin = model_transform;
+    model_transform = mult(model_transform, translate(LEG_LENGTH / 2, 0, 0));
+    model_transform = mult(model_transform, scale(LEG_LENGTH, LEG_WIDTH, LEG_WIDTH));
+    this.m_cube.draw(this.graphicsState, model_transform, BEE_BODY);
+
+    return origin;
+};
+
+/**
+ * Draws a flapping bee wing.
+ * @param model_transform Current matrix
+ * @returns {*} Matrix at wing root
+ */
+Animation.prototype.beeWing = function (model_transform) {
+    var WING_LENGTH = 2;
+    var WING_WIDTH = 1;
+    var WING_THICKNESS = 0.2;
+    var INITIAL_ANGLE = 60;
+    var SWAY_PERIOD = 1000; // milliseconds
+    var MAX_SWAY = 30; // degrees
+    var WING_TEXTURE = new Material(getColorVec(255, 255, 255, 100), 1, 1, 1, 255);
+
+    model_transform = mult(model_transform, rotate(INITIAL_ANGLE, 0, 0, 1));
+    model_transform = this.periodicPivot(model_transform, SWAY_PERIOD, MAX_SWAY);
+    var origin = model_transform;
+    model_transform = mult(model_transform, translate(WING_LENGTH / 2, 0, 0));
+    model_transform = mult(model_transform, scale(WING_LENGTH, WING_THICKNESS, WING_WIDTH));
+    this.m_sphere.draw(this.graphicsState, model_transform, WING_TEXTURE);
 
     return origin;
 };
