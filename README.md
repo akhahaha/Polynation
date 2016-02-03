@@ -8,4 +8,4 @@ Polynation
 Overview
 ---------------
 Use WebGL to draw an animated 3D scene with a bee orbiting a tree.
-![Screenshot](img/screenshot.png)
+![Screenshot](images/screenshot.png)
